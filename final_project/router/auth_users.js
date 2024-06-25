@@ -94,7 +94,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   try {
     const isbn = req.params.isbn;
-    const username = req.session.username;
+    const username = req.session.authorization.username;
 
     if (!username) {
       return res.status(401).json({ message: "User not authenticated" });
