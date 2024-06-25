@@ -20,16 +20,31 @@ public_users.post("/register", (req, res) => {
   return res.status(404).json({ message: "Unable to register user." });
 });
 
+const fetchBooksFromAPI = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(Object.values(books));
+    }, 100); // Simulated delay
+  });
+};
+
 // Get the book list available in the shop
-public_users.get("/", function (req, res) {
-  return res.json(Object.values(books));
+public_users.get("/", async function (req, res) {
+  try {
+    const fetchBooks = await fetchBooksFromAPI();
+    res.json(fetchBooks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get book details based on ISBN
-public_users.get("/isbn/:isbn", function (req, res) {
+public_users.get("/isbn/:isbn", async function (req, res) {
   try {
     const isbn = req.params.isbn;
-    const book = books[isbn];
+    const fetchBooks = await fetchBooksFromAPI();
+
+    const book = fetchBooks[isbn];
 
     if (!book) {
       return res.status(404).json({ message: "Book not found" });
@@ -41,10 +56,12 @@ public_users.get("/isbn/:isbn", function (req, res) {
 });
 
 // Get book details based on author
-public_users.get("/author/:author", function (req, res) {
+public_users.get("/author/:author", async function (req, res) {
   try {
     const author = req.params.author.toLowerCase();
-    const booksByAuthor = Object.values(books).filter(
+    const fetchBooks = await fetchBooksFromAPI();
+
+    const booksByAuthor = fetchBooks.filter(
       (book) => book.author.toLowerCase() === author
     );
 
@@ -58,10 +75,11 @@ public_users.get("/author/:author", function (req, res) {
 });
 
 // Get all books based on title
-public_users.get("/title/:title", function (req, res) {
+public_users.get("/title/:title", async function (req, res) {
   try {
     const title = req.params.title.toLowerCase();
-    const booksByTitle = Object.values(books).filter(
+    const fetchBooks = await fetchBooksFromAPI();
+    const booksByTitle = fetchBooks.filter(
       (book) => book.title.toLowerCase() === title
     );
 
@@ -75,10 +93,12 @@ public_users.get("/title/:title", function (req, res) {
 });
 
 //  Get book review
-public_users.get("/review/:isbn", function (req, res) {
+public_users.get("/review/:isbn", async function (req, res) {
   try {
     const isbn = req.params.isbn;
-    const book = books[isbn];
+    const fetchBooks = await fetchBooksFromAPI();
+
+    const book = fetchBooks[isbn];
 
     if (!book) {
       return res.status(404).json({ message: "Book not found" });
